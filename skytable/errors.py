@@ -1,0 +1,2 @@
+class SkytableException(Exception):
+    pass
