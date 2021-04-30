@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from .protocol import Protocol
 from .query import build, parse
@@ -40,17 +40,17 @@ class Connection:
 
         return self
 
-    def set(self, key, value):
+    def set(self, key: str, value: Any):
         return self.query([("SET", key, value)])
 
-    def get(self, key):
+    def get(self, key: str):
         return self.query([("GET", key)])
 
     async def query(self, querys: List[Tuple[str, ...]]):
         data = build(querys).encode()
         response = await self.protocol.execute(data)
         data = parse(response)
-        
+
         if len(data) == 1:
             data, = data
         

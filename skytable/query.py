@@ -24,7 +24,7 @@ def build(segments: List[Tuple[str, ...]]) -> str:
     
     return "\n".join(lines)
 
-def parse(buf: bytes):
+def parse(buf: bytes) -> List[List[Tuple[str, str]]]:
     responses: List[List[Tuple[str, str]]] = initial_parse(buf)
     output: List[List[Any]] = []
     for response in responses:
