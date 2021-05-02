@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from itertools import takewhile
 from typing import List, Tuple, Any
 
-from .enums import DataTypes
 from .skytable import parse as initial_parse
 
 "#2\n*1\n#2\n&1\n+1\nb\n"
 
 def build(segments: List[Tuple[str, ...]]) -> str:
-    lines = []
+    lines: List[str] = []
     n = f"*{len(segments)}"
     m = f"#{len(n)}"
     lines.extend((m, n))

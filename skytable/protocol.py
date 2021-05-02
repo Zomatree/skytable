@@ -7,7 +7,7 @@ class Protocol(asyncio.BaseProtocol):
         super().__init__()
         self.host = host
         self.connected = connected
-        self.buffer = asyncio.Queue()
+        self.buffer: asyncio.Queue[bytes] = asyncio.Queue()
         self.transport: Optional[asyncio.Transport] = None
 
     def connection_made(self, transport: asyncio.Transport):
@@ -21,9 +21,11 @@ class Protocol(asyncio.BaseProtocol):
         pass
 
     def writelines(self, lines: List[bytes]):
+        assert self.transport
         self.transport.writelines(lines)
 
     def write(self, line: bytes):
+        assert self.transport
         self.transport.write(line)
 
     async def execute(self, query: bytes) -> bytes:

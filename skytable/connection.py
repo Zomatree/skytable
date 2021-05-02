@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional, Union
 
 from .protocol import Protocol
 from .query import build, parse
@@ -11,7 +11,7 @@ class Connection:
         self.host = host
         self.port = port
         self.timeout = timeout
-        self.protocol = None
+        self.protocol: Optional[Protocol] = None
         self.transport = None
 
     async def connect(self):
@@ -25,7 +25,9 @@ class Connection:
 
         timeout = self.timeout
         before = time.monotonic()
+        
         transport, protocol = await asyncio.wait_for(connector, timeout=timeout)
+        
         timeout -= time.monotonic() - before
 
         try:
@@ -35,7 +37,7 @@ class Connection:
         except:
             transport.close()
         
-        self.protocol = protocol
+        self.protocol = protocol  # type: ignore
         self.transport = transport
 
         return self
@@ -47,14 +49,19 @@ class Connection:
         return self.query([("GET", key)])
 
     async def query(self, querys: List[Tuple[str, ...]]):
+        assert self.protocol
+
         data = build(querys).encode()
         response = await self.protocol.execute(data)
-        data = parse(response)
+        resp = parse(response)
+        output: Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]
 
-        if len(data) == 1:
-            data, = data
-        
-        return data
+        if len(resp) == 1:
+            output, = resp
+        else:
+            output = resp
+
+        return output
 
 async def connect(host, *, port=2003, timeout=100):
     con = Connection(host, port, timeout)
