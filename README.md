@@ -1,5 +1,6 @@
 # Skytable
-https://img.shields.io/github/license/Zomatree/skytable
+![License](https://img.shields.io/github/license/Zomatree/skytable)
+
 This library is a wrapper around [Skytable](https://github.com/skytable/skytable)
 
 # Installing
