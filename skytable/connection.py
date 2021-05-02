@@ -7,6 +7,10 @@ from .query import build, parse
 
 
 class Connection:
+    """A Skytable connection.
+
+    This is made from the :func:`skytable.connect` function.
+    """
     def __init__(self, host: str, port: int, timeout: int = 100):
         self.host = host
         self.port = port
@@ -15,6 +19,7 @@ class Connection:
         self.transport = None
 
     async def connect(self):
+        """Connects to the Skytable database, you do not need to run this yourself if the connection was made though :func:`skytable.connect`."""
         loop = asyncio.get_running_loop()
 
         connected = loop.create_future()
@@ -42,13 +47,35 @@ class Connection:
 
         return self
 
-    def set(self, key: str, value: Any):
-        return self.query([("SET", key, value)])
+    async def set(self, key: str, value: Any):
+        """Sets a key-value pair into the database.
 
-    def get(self, key: str):
-        return self.query([("GET", key)])
+        Parameters
+        -----------
+        key: :class:`str`
+            the key for the pair.
+        value: Any
+            the value for the pair.
+        """
 
-    async def query(self, querys: List[Tuple[str, ...]]):
+        return await self.query([("SET", key, value)])
+
+    async def get(self, key: str) -> Any:
+        """Gets a value from the database via its key.
+
+        Parameters
+        -----------
+        key: :class:`str`
+            The key of the value
+        
+        Returns
+        -------
+        Any
+            The value.
+        """
+        return await self.query([("GET", key)])
+
+    async def query(self, querys: List[Tuple[str, ...]]) -> Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]:
         assert self.protocol
 
         data = build(querys).encode()
@@ -64,6 +91,22 @@ class Connection:
         return output
 
 async def connect(host, *, port=2003, timeout=100):
+    """Main function to connect to the Skytable database.
+
+    Parameters
+    -----------
+    host: :class:`str`
+        The host of the Skytable database.
+    port: :class:`int`
+        The port Skytable is running on.
+    timeout: :class:`int`
+        How long to wait for to try connect before timing out.
+    
+    Returns
+    --------
+    :class:`Connection`
+        The connection
+    """
     con = Connection(host, port, timeout)
     await con.connect()
     return con
